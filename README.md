@@ -1,142 +1,107 @@
-# CS 305 Software Security
+# CS 305 - Software Security
 
 ## Project Overview
 
-This repository contains a software vulnerability assessment report developed for Artemis Financial as part of CS 305: Software Security at Southern New Hampshire University. The project demonstrates the process of evaluating a Java Spring Boot RESTful application for security vulnerabilities through manual code review, static dependency analysis, and risk-based mitigation planning.
+This repository contains a software vulnerability assessment conducted for Artemis Financial as part of CS 305: Software Security at Southern New Hampshire University. The project demonstrates the application of secure software development principles through manual code review, static dependency analysis, vulnerability identification, and risk-based mitigation planning.
 
-The assessment examined application security, database access, input validation, cryptography, API design, error handling, and third-party dependencies. Using OWASP Dependency-Check with Maven, I identified known vulnerabilities in outdated software components and developed recommendations for improving the application's security posture.
+The assessment focused on a Java Spring Boot RESTful application and examined security concerns involving authentication, authorization, input validation, cryptography, database access, error handling, and third-party dependencies.
 
 ## Client and Software Requirements
 
-Artemis Financial is a financial consulting company that develops individualized financial plans involving savings, retirement, investments, and insurance. The company sought to modernize its existing software while strengthening the security of its RESTful web application against external threats.
+Artemis Financial is a financial consulting company that develops individualized financial plans involving savings, retirement, investments, and insurance. The company sought to modernize its software infrastructure while strengthening the security of its existing RESTful web application.
 
-The primary security requirements involved protecting sensitive financial information, preventing unauthorized access, securing client-server communications, and addressing vulnerabilities in the application's code and dependencies.
+As a developer working for Global Rain, I was responsible for evaluating the application to identify potential security vulnerabilities and recommend appropriate mitigation strategies. The primary objective was to protect sensitive financial information, prevent unauthorized access, secure communication between systems, and identify weaknesses in the application's source code and supporting dependencies.
 
-To address these requirements, I evaluated the application for risks involving authentication and authorization, unvalidated input, exposed credentials, insecure database configurations, outdated cryptographic components, and vulnerable third-party libraries.
+## Project Reflection
 
-## Vulnerability Assessment
+### 1. Identifying Security Vulnerabilities and the Importance of Secure Coding
 
-### Manual Code Review
+One of the strongest aspects of my vulnerability assessment was combining manual source code inspection with automated dependency analysis to identify weaknesses at both the application and framework levels. Through manual review, I documented ten findings, including hard-coded database credentials, excessive database privileges, insufficient input validation, unrestricted API methods, missing authentication and authorization, insecure error handling, inadequate encapsulation, and outdated dependencies.
 
-One of the strongest aspects of my assessment was identifying security weaknesses within the application's Java source code and connecting those findings to practical mitigation strategies.
+I also integrated OWASP Dependency-Check into the Maven build process. The resulting scan examined 38 dependencies representing 20 unique components and identified 11 vulnerable dependencies containing 252 vulnerability findings, ranging from Medium to Critical severity. This demonstrated the importance of evaluating third-party libraries in addition to the application's own source code.
 
-The manual review documented ten findings across several classes and configuration files:
+Secure coding is essential because software vulnerabilities can compromise the confidentiality, integrity, and availability of sensitive information. For an organization like Artemis Financial, effective software security helps protect customer financial data, reduce operational and financial risk, maintain regulatory compliance where applicable, and preserve customer trust. Security therefore contributes directly to an organization's reliability, reputation, and long-term stability.
 
-- **Hard-coded credentials:** `DocData.java` contained embedded database credentials, creating a risk of credential exposure.
-- **Excessive database privileges:** The application used the MySQL `root` account instead of a dedicated, least-privilege application account.
-- **Insecure database transport:** The JDBC configuration did not explicitly enforce encrypted database connections.
-- **Improper error handling:** Direct stack-trace output could disclose sensitive implementation details.
-- **Insufficient input validation:** Controller parameters lacked explicit restrictions on permitted values, formats, and lengths.
-- **Unrestricted HTTP methods:** A general `@RequestMapping` exposed an endpoint to more HTTP methods than necessary.
-- **Missing access controls:** The supplied application did not demonstrate authentication or authorization mechanisms for REST endpoints.
-- **Insufficient encapsulation:** The `account_balance` field lacked appropriate access restrictions.
-- **Missing transaction validation:** The `deposit()` method did not reject invalid financial transaction amounts.
-- **Outdated dependencies:** The application relied on obsolete Spring Boot and cryptographic libraries.
+### 2. Challenges and Benefits of the Vulnerability Assessment
 
-These findings reinforced the importance of examining software security beyond whether an application compiles and functions correctly. Secure code must also preserve confidentiality, integrity, and availability under potentially malicious conditions.
+The most challenging part of the assessment was interpreting the results generated by OWASP Dependency-Check and determining how individual vulnerabilities related to the application's overall security posture. The report identified numerous CVEs across outdated components, including Spring Framework, Apache Tomcat, Jackson Databind, SnakeYAML, and Bouncy Castle.
 
-### Static Dependency Analysis
+Understanding these findings required distinguishing between vulnerability severity and actual exploitation risk. For example, CVE-2022-22965 (Spring4Shell) can permit remote code execution under certain conditions, while CVE-2022-1471 involves unsafe YAML deserialization. Although both represent significant concerns, their practical impact depends on the application's configuration and how affected components are used.
 
-I integrated the OWASP Dependency-Check Maven plug-in to examine the application's third-party libraries for publicly documented vulnerabilities.
+This analysis was particularly helpful in demonstrating how outdated frameworks introduce vulnerabilities throughout a dependency tree. Rather than recommending isolated library replacements, I identified migration to a maintained Spring Boot platform as a more comprehensive mitigation strategy. The assessment reinforced the importance of evaluating vulnerabilities within their technical and architectural context.
 
-The resulting assessment reported:
+### 3. Strengthening Security Through Layered Mitigation
 
-- 38 dependencies scanned
-- 20 unique components
-- 11 vulnerable dependencies
-- 252 vulnerability findings
-- Severity classifications ranging from Medium to Critical
+To strengthen the application's security, I developed a mitigation plan based on the principle of defense in depth. Although Project One focused on assessment rather than implementing code changes, the plan identified complementary security controls intended to reduce the application's attack surface and limit the consequences of individual security failures.
 
-Affected components included Spring Framework, Spring Boot, Apache Tomcat, Jackson Databind, SnakeYAML, and Bouncy Castle.
+My recommendations included implementing authentication and role-based authorization through Spring Security, removing hard-coded credentials, enforcing least-privilege database access, requiring HTTPS/TLS communication, validating external input, restricting HTTP methods, improving exception handling, and protecting financial data through encapsulation and transaction validation.
 
-Several findings were particularly significant:
+I also recommended upgrading outdated dependencies, particularly the Spring Boot framework and its associated libraries, and incorporating continuous vulnerability scanning into the development lifecycle.
 
-- **CVE-2022-22965 (Spring4Shell):** A Spring Framework vulnerability that can permit remote code execution under specific deployment conditions.
-- **CVE-2022-1471 (SnakeYAML):** Unsafe deserialization that can result in remote code execution when untrusted YAML is processed.
-- **CVE-2020-1938 (Ghostcat):** An Apache Tomcat AJP vulnerability that can permit unauthorized access to application files under affected configurations.
-- **CVE-2020-36518 (Jackson Databind):** Excessive recursion from deeply nested JSON that can cause denial of service.
+In future projects, I would use manual code reviews, OWASP Dependency-Check, CVE documentation, CVSS severity ratings, the National Vulnerability Database, and CISA's Known Exploited Vulnerabilities Catalog to evaluate security risks. I would prioritize mitigation strategies based on vulnerability severity, known exploitation, application exposure, business impact, and compatibility with the existing software architecture.
 
-The most important finding was that the application's dependency-security problems extended beyond isolated libraries. Its outdated Spring Boot platform introduced numerous vulnerable transitive dependencies, making framework modernization a more effective long-term strategy than independently replacing individual JAR files.
+### 4. Verifying Functionality and Security After Refactoring
 
-## Security Challenges and Lessons Learned
+Project One focused on identifying vulnerabilities and developing a remediation plan rather than directly modifying the application's source code. Consequently, the assessment did not establish that the identified vulnerabilities had been remediated or that a refactored application had passed security testing.
 
-The most challenging part of the vulnerability assessment was interpreting the Dependency-Check results and distinguishing vulnerability severity from actual application risk.
+The assessment did, however, establish a baseline for evaluating future security improvements through its manual findings and OWASP Dependency-Check results.
 
-A reported CVE indicates that a component may contain a known vulnerability, but exploitation can depend on its configuration, execution path, and environmental conditions. Consequently, vulnerability remediation requires more than identifying the highest CVSS score.
+After implementing the recommended changes, I would verify application functionality through compilation, unit testing, integration testing, and manual execution of affected components. I would then perform regression testing to confirm that the modifications had not disrupted existing functionality.
 
-The assessment demonstrated the importance of considering exploitability, potential impact, affected components, and known exploitation when prioritizing security improvements.
+To identify newly introduced or unresolved vulnerabilities, I would repeat the manual security review and OWASP Dependency-Check scan, compare the results against the original assessment, and investigate remaining findings. Additional testing would focus on authentication, authorization, input validation, secure communication, and database operations.
 
-It also showed how manual review and automated dependency scanning complement one another. Manual inspection revealed application-specific problems such as hard-coded credentials, missing input validation, and weak access controls, while Dependency-Check identified known weaknesses in third-party components that would be difficult to discover through source inspection alone.
+This approach demonstrates the importance of validating security improvements without compromising software reliability or introducing new weaknesses during refactoring.
 
-## Security Improvements and Mitigation Strategy
+### 5. Resources, Tools, and Secure Coding Practices
 
-Based on the assessment findings, I developed a layered mitigation plan intended to reduce the application's attack surface and improve its resistance to external threats.
+The project provided practical experience with several tools and security concepts that will remain useful in future software development assignments and professional projects.
 
-The proposed improvements included:
-
-1. **Authentication and authorization:** Implement Spring Security and require appropriate permissions for protected API operations.
-2. **Secrets management:** Remove embedded credentials and use environment variables or a dedicated secrets-management system.
-3. **Least privilege:** Replace the MySQL administrative account with a restricted application account.
-4. **Secure communication:** Require HTTPS/TLS for application traffic and encrypted database connections where appropriate.
-5. **Input validation:** Enforce accepted types, formats, lengths, and value ranges before processing external data.
-6. **API restrictions:** Limit endpoints to their intended HTTP methods and apply appropriate authorization rules.
-7. **Secure error handling:** Replace uncontrolled stack traces with structured logging and sanitized client responses.
-8. **Data encapsulation:** Protect financial state through private fields and validated transaction methods.
-9. **Dependency modernization:** Upgrade the unsupported Spring Boot platform and affected cryptographic libraries.
-10. **Continuous vulnerability management:** Integrate dependency scanning, patch management, and security review into the development lifecycle.
-
-These recommendations illustrate the principle of **defense in depth**, in which multiple complementary security controls reduce the likelihood that a single weakness will compromise an application.
-
-For future assessments, I would prioritize vulnerabilities by combining CVSS severity, documented exploitation, business impact, exposure, and the actual application configuration.
-
-## Secure Development and Verification
-
-An important distinction in this project was the difference between identifying vulnerabilities and verifying that remediation has succeeded.
-
-Project One focused on assessment and mitigation planning rather than implementing the recommended corrections. Therefore, the resulting report establishes a remediation baseline, not proof that the application has been secured.
-
-After future code refactoring, I would verify both functionality and security through a combination of:
-
-- Manual review of modified code for syntactical, logical, and security weaknesses.
-- Unit and integration testing to verify expected application behavior.
-- Repeat OWASP Dependency-Check scans to identify remaining vulnerable dependencies.
-- Regression testing to determine whether security changes disrupt existing functionality.
-- Authentication, authorization, and input-validation testing.
-- Review of newly introduced dependencies and configuration changes.
-
-This process would help confirm that vulnerability remediation does not introduce additional defects or undermine existing application functionality.
-
-## Tools and Security Practices
-
-The project provided practical experience with several technologies and security assessment techniques:
-
-- **Java:** Reviewing application code for vulnerabilities involving validation, access control, encapsulation, and error handling.
-- **Spring Boot:** Evaluating the security implications of RESTful application architecture and framework dependencies.
-- **Apache Maven:** Managing application dependencies and integrating security-analysis plug-ins.
+- **Java:** Examining source code for vulnerabilities involving encapsulation, input validation, error handling, and access control.
+- **Spring Boot:** Understanding the security implications of RESTful web applications, framework configuration, and dependency management.
+- **Apache Maven:** Managing application dependencies and integrating automated security-analysis tools into the build process.
 - **OWASP Dependency-Check:** Identifying known vulnerabilities in direct and transitive software dependencies.
-- **CVE and CVSS:** Understanding vulnerability identifiers, technical descriptions, and severity classifications.
-- **National Vulnerability Database (NVD):** Researching published vulnerabilities and their affected software versions.
-- **CISA Known Exploited Vulnerabilities Catalog:** Identifying vulnerabilities with documented exploitation.
-- **Secure coding principles:** Applying defense in depth, least privilege, secure configuration, input validation, and dependency maintenance.
+- **CVE and CVSS:** Interpreting published vulnerability identifiers, severity classifications, and technical descriptions.
+- **National Vulnerability Database (NVD):** Researching documented vulnerabilities and affected software versions.
+- **CISA Known Exploited Vulnerabilities Catalog:** Identifying vulnerabilities associated with documented exploitation.
+- **Secure coding principles:** Applying defense in depth, least privilege, secure configuration, input validation, secrets management, and continuous dependency maintenance.
 
-A key lesson was that secure software development is an ongoing process rather than a single testing phase. Applications must be reviewed, maintained, and reassessed as vulnerabilities are discovered and dependencies become outdated.
+The most valuable practices were combining manual and automated analysis, examining dependency relationships rather than isolated components, and developing remediation recommendations according to security risk.
 
-## Portfolio Reflection
+These techniques reinforce the understanding that secure development requires continuous assessment throughout the software lifecycle rather than relying exclusively on testing before deployment.
 
-This project strengthened my ability to evaluate an existing software application from a security perspective rather than focusing exclusively on functional requirements.
+### 6. Demonstrating Skills to Future Employers
 
-I demonstrated the ability to inspect Java source code, identify security weaknesses, interpret automated vulnerability reports, and translate technical findings into actionable remediation recommendations.
+The primary artifact I would present to a prospective employer is my completed **Artemis Financial Software Vulnerability Assessment Report**. This document demonstrates my ability to analyze an existing Java application, identify security weaknesses, interpret automated vulnerability reports, and develop structured mitigation recommendations.
 
-For prospective employers, the completed vulnerability assessment demonstrates my familiarity with security analysis, software supply-chain risk, vulnerability classification, and secure development practices. It also illustrates my ability to communicate technical risks and recommend improvements in a structured professional report.
+The report includes ten findings from manual code inspection, dependency analysis identifying 252 vulnerability findings across 11 affected dependencies, and a prioritized mitigation plan addressing application security, database access, cryptography, and dependency management.
 
-The most valuable lesson from this assignment was understanding that software security depends on both application-level safeguards and the security of the underlying technology stack. Effective vulnerability management requires examining code, configuration, dependencies, and deployment conditions together.
+These deliverables demonstrate practical experience with Java, Spring Boot, Maven, OWASP Dependency-Check, vulnerability classification, and secure software development principles.
+
+More importantly, the project illustrates my ability to approach software development from a security perspective, evaluate technical risks, and communicate findings in a professional format. These skills are applicable to software engineering, application security, code review, and vulnerability management.
+
+## Key Technical Findings
+
+The following examples summarize several significant vulnerabilities documented in the assessment.
+
+| Vulnerability | Affected Component | Security Concern |
+|---|---|---|
+| CVE-2022-22965 | Spring Framework | Potential remote code execution under affected configurations |
+| CVE-2022-1471 | SnakeYAML | Unsafe deserialization and potential remote code execution |
+| CVE-2020-1938 | Apache Tomcat | Unauthorized access to application files through affected AJP configurations |
+| CVE-2020-36518 | Jackson Databind | Denial of service through deeply nested JSON |
+| CVE-2016-1000338 | Bouncy Castle | Improper DSA signature verification |
+
+The assessment also identified application-level weaknesses involving hard-coded database credentials, missing access controls, unvalidated financial transactions, and insecure error handling.
+
+Together, these findings demonstrate the need to evaluate both application-specific vulnerabilities and risks introduced through external dependencies.
 
 ## Repository Contents
 
-- `Artemis Financial - Software Vulnerability Assessment Report.docx` — Completed vulnerability assessment documenting manual code review, static testing results, identified vulnerabilities, and recommended mitigations.
-- `README.md` — Project overview, security concepts, technical findings, and portfolio reflections.
+- **Artemis Financial - Software Vulnerability Assessment Report.docx:** Completed vulnerability assessment documenting client requirements, applicable security areas, manual review findings, static dependency analysis, and recommended remediation strategies.
+- **README.md:** Project overview, technical findings, security practices, and portfolio reflections addressing the CS 305 Module Eight Journal requirements.
 
-## Course
+## Course Information
 
-CS 305: Software Security  
-Southern New Hampshire University
+**Course:** CS 305 - Software Security  
+**Institution:** Southern New Hampshire University  
+**Project:** Artemis Financial Vulnerability Assessment
